@@ -1,21 +1,22 @@
-import re
-import csv
 import six
+import csv
 
 
-def add_rows(rows, filename, create_new=False, delimiter=',',
-             quoting_policy=csv.QUOTE_ALL):
-    mode = 'w+' if create_new else 'a+'
-    with open(filename, mode) as csvfile:
-        data_csv = csv.writer(
-            csvfile, delimiter=delimiter, lineterminator='\n',
-            quotechar='"', quoting=quoting_policy)
-        for rowData in rows:
-            row = []
-            for columnData in rowData:
-                if isinstance(columnData, six.string_types):
-                    row.append(
-                        re.sub(r"\s+", " ", columnData))
-                else:
-                    row.append(columnData)
-            data_csv.writerow(row)
+def write_dicts_to_csv(dicts, filename, delimiter=',',
+                       fieldnames=[], write_headers=True):
+    if len(dicts) > 0:
+        with open(filename, 'a+') as output_file:
+            if len(fieldnames) == 0:
+                fieldnames = dicts[0].keys()
+            csv_writer = csv.DictWriter(
+                output_file, fieldnames=fieldnames, delimiter=delimiter)
+            if write_headers:
+                csv_writer.writeheader()
+            for row in dicts:
+                line_dict_utf8 = {}
+                for k, v in row.items():
+                    if isinstance(v, six.string_types):
+                        line_dict_utf8[k] = v.encode('utf8')
+                    else:
+                        line_dict_utf8[k] = v
+                csv_writer.writerow(line_dict_utf8)

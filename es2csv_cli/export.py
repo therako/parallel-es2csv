@@ -1,19 +1,17 @@
 from elasticsearch import Elasticsearch
-from .utils.csv_util import add_rows
+from .utils.csv_util import write_dicts_to_csv
 
 
-def extract_to_csv(proc_name, data, es_columns, output_file):
+def extract_to_csv(proc_name, data, es_columns, output_file, write_headers):
     _rows = []
-    for datumn in data:
-        _row = []
+    for _datumn in data:
+        _row = {}
         if '_all' in es_columns:
-            for key, value in datumn['_source'].items():
-                _row.append(value)
+            _row = _datumn['_source']
         else:
-            for column in es_columns:
-                _row.append(datumn['_source'].get(column))
+            _row = {k: v for k, v in _datumn['_source'].items() if k in es_columns}     # noqa
         _rows.append(_row)
-    add_rows(_rows, output_file)
+    write_dicts_to_csv(_rows, output_file, write_headers=write_headers)
 
 
 def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
@@ -41,9 +39,12 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
     )
     _data = _page['hits']['hits']
     _sid = _page['_scroll_id']
+    _headers_written = False
     if _data:
         extract_to_csv(proc_name, data=_data, es_columns=es_columns,
-                       output_file=output_file)
+                       output_file=output_file,
+                       write_headers=(not _headers_written))
+        _headers_written = True
     # Continue scrolling
     while True:
         _page = _es.scroll(scroll_id=_sid, scroll='{}m'.format(es_timeout))
@@ -51,6 +52,8 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
         _data = _page['hits']['hits']
         if _data:
             extract_to_csv(proc_name, data=_data, es_columns=es_columns,
-                           output_file=output_file)
+                           output_file=output_file,
+                           write_headers=(not _headers_written))
+            _headers_written = True
         else:
             break

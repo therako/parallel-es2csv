@@ -2,7 +2,7 @@
 
 default: coverage
 
-ci: clean test lint coverage
+ci: clean test-setup test lint coverage
 
 develop:
 	python setup.py develop
@@ -12,6 +12,10 @@ develop:
 	@chmod a+x .git/hooks/pre-push
 	@echo
 	@echo "Added pre-push hook! To run manually: make pre-commit"
+
+test-setup:
+	pip install -r test-requirements.txt
+	pip install -e .
 
 test:
 	tox

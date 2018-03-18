@@ -6,4 +6,5 @@ mock==1.0.1
 pytest
 pytest-cov
 pygments
+restructuredtext_lint
 flake8

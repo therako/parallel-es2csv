@@ -1,6 +1,23 @@
 A command line interface for exporting data from elasticsearch to local csv files
 =================================================================================
 
+.. image:: https://travis-ci.org/therako/es2csv-cli.svg?branch=master
+   :target: https://travis-ci.org/therako/es2csv-cli
+   :alt: Build Status
+
+.. image:: https://img.shields.io/pypi/v/es2csv-cli.svg
+   :target: https://pypi.python.org/pypi/es2csv-cli/
+   :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/es2csv-cli.svg
+   :target: https://pypi.python.org/pypi/es2csv-cli/
+   :alt: Python versions
+
+.. image:: https://img.shields.io/pypi/status/es2csv-cli.svg
+   :target: https://pypi.python.org/pypi/es2csv-cli/
+   :alt: Package status
+
+
 Installation and usage
 ----------------------
 

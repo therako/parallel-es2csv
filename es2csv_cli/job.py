@@ -2,7 +2,7 @@ import re
 
 from .utils.async_worker import AsyncWorker, ASYNC_WORKER_SATE
 from .utils.file import purge
-from .export import scroll_and_extract_data
+from .export import scroll_and_extract_data, get_fieldnames_for
 
 
 class Es2CsvJob:
@@ -12,7 +12,7 @@ class Es2CsvJob:
     def export(self):
         self._init_async_worker()
         self._clean_output_files()
-        self._slice_and_scroll()
+        self._slice_and_scroll(self._get_fieldnames())
         self._wait_till_complete()
 
     def _init_async_worker(self):
@@ -21,7 +21,10 @@ class Es2CsvJob:
     def _clean_output_files(self):
         purge(self.opts.output_file)
 
-    def _slice_and_scroll(self):
+    def _get_fieldnames(self):
+        return get_fieldnames_for(self.opts.url, self.opts.indices)
+
+    def _slice_and_scroll(self, fieldnames):
         for i in range(self.opts.no_of_workers):
             output_file = self._output_file_for(i)
             search_args = dict(
@@ -43,7 +46,8 @@ class Es2CsvJob:
                 es_hosts=self.opts.url,
                 es_timeout=self.opts.timeout,
                 output_file=output_file,
-                search_args=search_args
+                search_args=search_args,
+                fieldnames=fieldnames
             )
 
     def _output_file_for(self, worker_no):

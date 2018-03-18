@@ -24,16 +24,26 @@ class Es2CsvJob:
     def _slice_and_scroll(self):
         for i in range(self.opts.no_of_workers):
             output_file = self._output_file_for(i)
+            search_args = dict(
+                index=','.join(self.opts.indices),
+                scroll='{}s'.format(self.opts.timeout),
+                size=self.opts.scroll_size,
+                body={
+                    'query': {
+                        'match_all': {}
+                    }
+                }
+            )
+            if '_all' not in self.opts.fields:
+                search_args['_source_include'] = ','.join(self.opts.fields)
             self.a.send_data_to_worker(
                 scroll_and_extract_data,
                 scroll_id=i,
                 total_worker_count=self.opts.no_of_workers,
                 es_hosts=self.opts.url,
-                es_index=self.opts.index,
                 es_timeout=self.opts.timeout,
-                es_scroll_batch_size=self.opts.scroll_size,
-                es_columns=self.opts.fields,
-                output_file=output_file
+                output_file=output_file,
+                search_args=search_args
             )
 
     def _output_file_for(self, worker_no):

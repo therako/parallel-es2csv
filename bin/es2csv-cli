@@ -9,8 +9,8 @@ from es2csv_cli.job import Es2CsvJob
 p = argparse.ArgumentParser(
     description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 p.add_argument(
-    '-i', '--index', dest='index', type=str, required=True,
-    help='ES index to export.')
+    '-i', '--indices', dest='indices', type=str, required=True, nargs='+',
+    help='ES indices to export.')
 p.add_argument(
     '-u', '--url', dest='url', default='http://localhost:9200', type=str,
     help='Elasticsearch host URL. Default is %(default)s.')
@@ -34,8 +34,8 @@ p.add_argument(
     metavar='INTEGER',
     help='Scroll size for each batch of results. Default is %(default)s.')
 p.add_argument(
-    '-t', '--timeout', dest='timeout', default=100, type=int,
-    metavar='INTEGER', help='Timeout in second %(default)s.')
+    '-t', '--timeout', dest='timeout', default=60, type=int,
+    metavar='INTEGER', help='Timeout in seconds %(default)s.')
 p.add_argument(
     '-e', '--meta_fields', dest='meta_fields', action='store_true',
     help='Add meta-fields in output.')

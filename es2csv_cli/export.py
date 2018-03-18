@@ -2,47 +2,30 @@ from elasticsearch import Elasticsearch
 from .utils.csv_util import write_dicts_to_csv
 
 
-def extract_to_csv(proc_name, data, es_columns, output_file, write_headers):
+def extract_to_csv(proc_name, data, output_file, write_headers):
     _rows = []
     for _datumn in data:
-        _row = {}
-        if '_all' in es_columns:
-            _row = _datumn['_source']
-        else:
-            _row = {k: v for k, v in _datumn['_source'].items() if k in es_columns}     # noqa
+        _row = _datumn['_source']
         _rows.append(_row)
     write_dicts_to_csv(_rows, output_file, write_headers=write_headers)
 
 
 def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
-                            es_index, es_timeout, es_scroll_batch_size,
-                            es_columns, output_file):
+                            es_timeout, output_file, search_args):
     _es = Elasticsearch(es_hosts)
     # Init scroll
-    _es_search_body = {
-        'query': {
-            'match_all': {}
-        }
-    }
     if total_worker_count > 1:
         # Add ES scroll slicing to handle parallel scrolling of the same data
-        _es_search_body['slice'] = {
+        search_args['body']['slice'] = {
             'id': scroll_id,
             'max': total_worker_count
         }
-
-    _page = _es.search(
-        index=es_index,
-        scroll='{}m'.format(es_timeout),
-        size=es_scroll_batch_size,
-        body=_es_search_body
-    )
+    _page = _es.search(**search_args)
     _data = _page['hits']['hits']
     _sid = _page['_scroll_id']
     _headers_written = False
     if _data:
-        extract_to_csv(proc_name, data=_data, es_columns=es_columns,
-                       output_file=output_file,
+        extract_to_csv(proc_name, data=_data, output_file=output_file,
                        write_headers=(not _headers_written))
         _headers_written = True
     # Continue scrolling
@@ -51,8 +34,7 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
         _sid = _page['_scroll_id']
         _data = _page['hits']['hits']
         if _data:
-            extract_to_csv(proc_name, data=_data, es_columns=es_columns,
-                           output_file=output_file,
+            extract_to_csv(proc_name, data=_data, output_file=output_file,
                            write_headers=(not _headers_written))
             _headers_written = True
         else:

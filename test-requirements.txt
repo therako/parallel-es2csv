@@ -1,0 +1,8 @@
+elasticsearch>=6.0.0,<7.0.0
+elasticsearch-dsl>=6.0.0,<7.0.0
+
+tox
+mock==1.0.1
+pytest
+pytest-cov
+flake8

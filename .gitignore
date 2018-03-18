@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+*.pyc
+.eggs
+.coverage
+build
+dist
+.tox
+.pytest_cache/

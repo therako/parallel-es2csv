@@ -2,6 +2,8 @@
 
 default: coverage
 
+ci: clean test lint coverage
+
 develop:
 	python setup.py develop
 	pip install -r test-requirements.txt

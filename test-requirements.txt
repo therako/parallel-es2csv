@@ -5,4 +5,5 @@ tox
 mock==1.0.1
 pytest
 pytest-cov
+pygments
 flake8

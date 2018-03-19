@@ -21,8 +21,8 @@ p.add_argument(
     '-D', '--doc_types', dest='doc_types', type=str, nargs='+',
     metavar='DOC_TYPE', help='Document type(s).')
 p.add_argument(
-    '-o', '--output_file', dest='output_file', type=str, required=True,
-    metavar='FILE', help='CSV file location.')
+    '-o', '--output_prefix', dest='output_prefix', type=str, required=True,
+    help='Output file prefix.')
 p.add_argument(
     '-f', '--fields', dest='fields', default=['_all'], type=str, nargs='+',
     help='List of selected fields in output. Default is %(default)s.')

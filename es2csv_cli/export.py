@@ -1,18 +1,25 @@
+import itertools
+
 from elasticsearch import Elasticsearch
 from .utils.csv_util import write_dicts_to_csv
 
 
-def extract_to_csv(proc_name, data, output_file, write_headers, fieldnames):
-    _rows = []
-    for _datumn in data:
-        _row = _datumn['_source']
-        _rows.append(_row)
-    write_dicts_to_csv(_rows, output_file, write_headers=write_headers,
-                       fieldnames=fieldnames[_datumn['_type']])
+def extract_to_csv(proc_name, data, write_headers, fieldnames, output_prefix,
+                   scroll_id):
+    for key, group in itertools.groupby(data, key=lambda x: x['_index']):
+        _rows = [_datumn['_source'] for _datumn in list(group)]
+        output_file = _output_file_for(output_prefix, scroll_id, key)
+        write_dicts_to_csv(_rows, output_file, write_headers=write_headers,
+                           fieldnames=fieldnames[key])
+
+
+def _output_file_for(output_prefix, scroll_id, index):
+    return '{}{}_{}.csv'.format(output_prefix, index, scroll_id)
 
 
 def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
-                            es_timeout, output_file, search_args, fieldnames):
+                            es_timeout, search_args,
+                            fieldnames, output_prefix):
     _es = Elasticsearch(es_hosts)
     # Init scroll
     if total_worker_count > 1:
@@ -26,9 +33,9 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
     _sid = _page['_scroll_id']
     _headers_written = False
     if _data:
-        extract_to_csv(proc_name, data=_data, output_file=output_file,
+        extract_to_csv(proc_name, data=_data, output_prefix=output_prefix,
                        write_headers=(not _headers_written),
-                       fieldnames=fieldnames)
+                       fieldnames=fieldnames, scroll_id=scroll_id)
         _headers_written = True
     # Continue scrolling
     while True:
@@ -36,9 +43,9 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
         _sid = _page['_scroll_id']
         _data = _page['hits']['hits']
         if _data:
-            extract_to_csv(proc_name, data=_data, output_file=output_file,
+            extract_to_csv(proc_name, data=_data, output_prefix=output_prefix,
                            write_headers=(not _headers_written),
-                           fieldnames=fieldnames)
+                           fieldnames=fieldnames, scroll_id=scroll_id)
             _headers_written = True
         else:
             break

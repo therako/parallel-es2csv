@@ -35,7 +35,7 @@ p.add_argument(
     help='Scroll size for each batch of results. Default is %(default)s.')
 p.add_argument(
     '-t', '--timeout', dest='timeout', default=60, type=int,
-    metavar='INTEGER', help='Timeout in seconds %(default)s.')
+    metavar='INTEGER', help='Timeout in seconds. Default is %(default)s.')
 p.add_argument(
     '-e', '--meta_fields', dest='meta_fields', action='store_true',
     help='Add meta-fields in output.')

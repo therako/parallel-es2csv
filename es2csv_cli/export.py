@@ -57,6 +57,9 @@ def get_fieldnames_for(es_hosts, indices):
         index=','.join(indices)
     )
     fieldnames = {}
-    for k, v in mappings.items():
-        fieldnames[k] = v['mappings'][k]['properties'].keys()
+    for index, value in mappings.items():
+        index_mappings = value['mappings']
+        for index_type, index_type_value in index_mappings.items():
+            fieldnames[index] = index_type_value['properties'].keys()
+            break
     return fieldnames

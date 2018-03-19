@@ -28,9 +28,9 @@ any other Python package.
 .. code-block:: shell
 
     # on modern systems with Python you can install with pip
-    $ pip install pyes2csv
+    $ pip install es2csv-cli
     # on older systems you can install using easy_install
-    $ easy_install pyes2csv
+    $ easy_install es2csv-cli
 
 **Usage**
 The commands should be mostly self-documenting in how they are defined,
@@ -38,6 +38,6 @@ which is made available through the ``help`` command.
 
 .. code-block:: shell
 
-    $ pyes2csv
+    $ es2csv-cli
     usage: es2csv-cli -u <elasticsearch_url> -i <index_to_export> -o <output_file>
 

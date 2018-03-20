@@ -33,17 +33,17 @@ def version():
 README = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 setup(
-    name='es2csv-cli',
+    name='parallel-es2csv',
     author='Arunkumar Ramanathan',
     author_email='rako.aka.arun@gmail.com',
     license='MIT License',
-    url='https://github.com/therako/es2csv-cli',
+    url='https://github.com/therako/parallel-es2csv',
     description='A CLI client for exporting elasticsearch data to csv',
     long_description=README,
     version=version(),
     packages=find_packages(exclude=('tests',)),
     cmdclass={'test': PyTest},
-    scripts=('bin/es2csv-cli',),
+    scripts=('bin/parallel-es2csv',),
     install_requires=[
         'elasticsearch>=6.0.0,<7.0.0',
         'elasticsearch-dsl>=6.0.0,<7.0.0',

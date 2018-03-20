@@ -1,5 +1,6 @@
 import itertools
 
+from tqdm import tqdm
 from elasticsearch import Elasticsearch
 from .utils.csv_util import write_dicts_to_csv
 
@@ -32,23 +33,28 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
     _data = _page['hits']['hits']
     _sid = _page['_scroll_id']
     _headers_written = False
-    if _data:
-        extract_to_csv(proc_name, data=_data, output_prefix=output_prefix,
-                       write_headers=(not _headers_written),
-                       fieldnames=fieldnames, scroll_id=scroll_id)
-        _headers_written = True
-    # Continue scrolling
-    while True:
-        _page = _es.scroll(scroll_id=_sid, scroll='{}m'.format(es_timeout))
-        _sid = _page['_scroll_id']
-        _data = _page['hits']['hits']
+    with tqdm(total=_page['hits']['total'], position=scroll_id,
+              desc="slice-%s" % scroll_id, ascii=True) as pbar:
         if _data:
             extract_to_csv(proc_name, data=_data, output_prefix=output_prefix,
                            write_headers=(not _headers_written),
                            fieldnames=fieldnames, scroll_id=scroll_id)
             _headers_written = True
-        else:
-            break
+            pbar.update(len(_data))
+        # Continue scrolling
+        while True:
+            _page = _es.scroll(scroll_id=_sid, scroll='{}m'.format(es_timeout))
+            _sid = _page['_scroll_id']
+            _data = _page['hits']['hits']
+            if _data:
+                extract_to_csv(proc_name, data=_data,
+                               output_prefix=output_prefix,
+                               write_headers=(not _headers_written),
+                               fieldnames=fieldnames, scroll_id=scroll_id)
+                _headers_written = True
+                pbar.update(len(_data))
+            else:
+                break
 
 
 def get_fieldnames_for(es_hosts, indices):

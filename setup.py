@@ -47,6 +47,7 @@ setup(
     install_requires=[
         'elasticsearch>=6.0.0,<7.0.0',
         'elasticsearch-dsl>=6.0.0,<7.0.0',
+        'tqdm==4.19.8',
     ],
     tests_require=[
         'pytest',

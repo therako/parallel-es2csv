@@ -8,5 +8,6 @@ def purge(filepath):
         if os.path.isdir(file):
             sub_folder_files = os.listdir(file)
             [os.remove(os.path.join(file, x)) for x in sub_folder_files]
+            os.rmdir(file)
         else:
             os.remove(file)

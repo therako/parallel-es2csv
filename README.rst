@@ -39,5 +39,5 @@ which is made available through the ``help`` command.
 .. code-block:: shell
 
     $ parallel-es2csv
-    usage: parallel-es2csv -u <elasticsearch_url> -i <index_to_export> -o <output_file>
+    usage: parallel-es2csv -u <elasticsearch_url> -i <[list_of_index]> [-n <no_of_workers>] [-o <output_folder>]
 

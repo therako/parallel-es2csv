@@ -48,6 +48,7 @@ setup(
         'elasticsearch>=6.0.0,<7.0.0',
         'elasticsearch-dsl>=6.0.0,<7.0.0',
         'tqdm==4.19.8',
+        'futures; python_version == "2.7"'
     ],
     tests_require=[
         'pytest',

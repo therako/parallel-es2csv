@@ -1,5 +1,4 @@
-from .utils.async_worker import AsyncWorker, ASYNC_WORKER_SATE
-from .utils.file import purge
+from .utils.async_worker import AsyncWorker
 from .export import scroll_and_extract_data, get_fieldnames_for
 
 
@@ -9,15 +8,11 @@ class Es2CsvJob:
 
     def export(self):
         self._init_async_worker()
-        self._clean_output_files()
         self._slice_and_scroll(self._get_fieldnames())
         self._wait_till_complete()
 
     def _init_async_worker(self):
         self.a = AsyncWorker(self.opts.no_of_workers)
-
-    def _clean_output_files(self):
-        purge(self.opts.output_folder)
 
     def _get_fieldnames(self):
         return get_fieldnames_for(self.opts.url, self.opts.indices)
@@ -49,9 +44,4 @@ class Es2CsvJob:
 
     def _wait_till_complete(self):
         print('Waiting for all jobs to be done...')
-        results = self.a.get_job_results()
-        print('Jobs are done. checking results...')
-        error_results = [x for x in results if x == ASYNC_WORKER_SATE.ERROR]
-        if len(error_results) != 0:
-            raise Exception('{} no of extract_jobs failed'.format(
-                len(error_results)))
+        self.a.get_job_results()

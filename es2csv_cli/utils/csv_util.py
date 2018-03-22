@@ -1,4 +1,3 @@
-import six
 import csv
 from .file import purge
 
@@ -19,8 +18,5 @@ def write_dicts_to_csv(dicts, filename, delimiter=',',
             for row in dicts:
                 line_dict_utf8 = {}
                 for k, v in row.items():
-                    if isinstance(v, six.string_types):
-                        line_dict_utf8[k] = v.encode('utf8')
-                    else:
-                        line_dict_utf8[k] = v
+                    line_dict_utf8[k] = v
                 csv_writer.writerow(line_dict_utf8)

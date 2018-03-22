@@ -27,10 +27,10 @@ class TestCsvUtil(unittest.TestCase):
         write_dicts_to_csv(dicts, filename)
         output_data = csv_to_json(filename)
         purge(filename)
-        self.assertEqual(output_data[0]['col1'], 'value1')
-        self.assertEqual(output_data[0]['col2'], '2')
-        self.assertEqual(output_data[1]['col1'], 'value3')
-        self.assertEqual(output_data[1]['col2'], '4')
+        assert output_data[0]['col1'] == 'value1'
+        assert output_data[0]['col2'] == '2'
+        assert output_data[1]['col1'] == 'value3'
+        assert output_data[1]['col2'] == '4'
 
     def test_write_dicts_to_csv_newlines(self):
         dicts = [{
@@ -45,7 +45,7 @@ class TestCsvUtil(unittest.TestCase):
         write_dicts_to_csv(dicts, filename)
         output_data = csv_to_json(filename)
         purge(filename)
-        self.assertEqual(output_data[0]['col1'], 'line1\nline2')
-        self.assertEqual(output_data[0]['col2'], '2')
-        self.assertEqual(output_data[1]['col1'], 'value3')
-        self.assertEqual(output_data[1]['col2'], '4')
+        assert output_data[0]['col1'] == 'line1\nline2'
+        assert output_data[0]['col2'] == '2'
+        assert output_data[1]['col1'] == 'value3'
+        assert output_data[1]['col2'] == '4'

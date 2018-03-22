@@ -17,6 +17,11 @@ A command line interface for exporting data from elasticsearch to local csv file
    :target: https://pypi.python.org/pypi/parallel-es2csv/
    :alt: Package status
 
+.. image:: https://coveralls.io/repos/github/therako/parallel-es2csv/badge.svg?branch=master
+   :target: https://coveralls.io/github/therako/parallel-es2csv?branch=master
+   :alt: Package coverage
+
+
 
 Installation and usage
 ----------------------

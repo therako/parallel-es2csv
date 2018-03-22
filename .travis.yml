@@ -3,7 +3,7 @@ python:
   - "2.7"
 cache: pip
 before_script:
-  - pip install tox flake8
+  - pip install tox flake8 python-coveralls
 script: make ci
 after_success:
   - coveralls

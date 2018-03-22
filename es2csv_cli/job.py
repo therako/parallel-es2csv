@@ -17,7 +17,7 @@ class Es2CsvJob:
         self.a = AsyncWorker(self.opts.no_of_workers)
 
     def _clean_output_files(self):
-        purge(self.opts.output_prefix)
+        purge(self.opts.output_folder)
 
     def _get_fieldnames(self):
         return get_fieldnames_for(self.opts.url, self.opts.indices)
@@ -42,7 +42,7 @@ class Es2CsvJob:
                 total_worker_count=self.opts.no_of_workers,
                 es_hosts=self.opts.url,
                 es_timeout=self.opts.timeout,
-                output_prefix=self.opts.output_prefix,
+                output_folder=self.opts.output_folder,
                 search_args=search_args,
                 fieldnames=fieldnames
             )

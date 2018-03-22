@@ -1,3 +1,4 @@
+import os
 import itertools
 
 from tqdm import tqdm
@@ -5,22 +6,22 @@ from elasticsearch import Elasticsearch
 from .utils.csv_util import write_dicts_to_csv
 
 
-def extract_to_csv(proc_name, data, write_headers, fieldnames, output_prefix,
+def extract_to_csv(proc_name, data, write_headers, fieldnames, output_folder,
                    scroll_id):
     for key, group in itertools.groupby(data, key=lambda x: x['_index']):
         _rows = [_datumn['_source'] for _datumn in list(group)]
-        output_file = _output_file_for(output_prefix, scroll_id, key)
+        output_file = _output_file_for(output_folder, scroll_id, key)
         write_dicts_to_csv(_rows, output_file, write_headers=write_headers,
                            fieldnames=fieldnames[key])
 
 
-def _output_file_for(output_prefix, scroll_id, index):
-    return '{}{}_{}.csv'.format(output_prefix, index, scroll_id)
+def _output_file_for(output_folder, scroll_id, index):
+    return os.path.join(output_folder, '{}_{}.csv'.format(index, scroll_id))
 
 
 def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
                             es_timeout, search_args,
-                            fieldnames, output_prefix):
+                            fieldnames, output_folder):
     _es = Elasticsearch(es_hosts)
     # Init scroll
     if total_worker_count > 1:
@@ -36,7 +37,7 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
     with tqdm(total=_page['hits']['total'], position=scroll_id,
               desc="slice-%s" % scroll_id, ascii=True) as pbar:
         if _data:
-            extract_to_csv(proc_name, data=_data, output_prefix=output_prefix,
+            extract_to_csv(proc_name, data=_data, output_folder=output_folder,
                            write_headers=(not _headers_written),
                            fieldnames=fieldnames, scroll_id=scroll_id)
             _headers_written = True
@@ -48,7 +49,7 @@ def scroll_and_extract_data(proc_name, scroll_id, total_worker_count, es_hosts,
             _data = _page['hits']['hits']
             if _data:
                 extract_to_csv(proc_name, data=_data,
-                               output_prefix=output_prefix,
+                               output_folder=output_folder,
                                write_headers=(not _headers_written),
                                fieldnames=fieldnames, scroll_id=scroll_id)
                 _headers_written = True

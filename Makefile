@@ -2,7 +2,7 @@
 
 default: coverage
 
-ci: clean test-setup test lint coverage
+ci: clean test-setup test-ci lint coverage
 
 develop:
 	python setup.py develop
@@ -19,6 +19,9 @@ test-setup:
 
 test:
 	tox
+
+test-ci:
+	py.test tests
 
 coverage:
 	py.test --cov=es2csv_cli tests

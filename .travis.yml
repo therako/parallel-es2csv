@@ -5,3 +5,5 @@ cache: pip
 before_script:
   - pip install tox flake8
 script: make ci
+after_success:
+  - coveralls

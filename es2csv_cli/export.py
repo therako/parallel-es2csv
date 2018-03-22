@@ -3,7 +3,7 @@ import itertools
 
 from tqdm import tqdm
 from elasticsearch import Elasticsearch
-from .utils.csv_util import write_dicts_to_csv
+from .utils import csv_util
 
 
 def extract_to_csv(data, write_headers, fieldnames, output_folder,
@@ -11,8 +11,9 @@ def extract_to_csv(data, write_headers, fieldnames, output_folder,
     for key, group in itertools.groupby(data, key=lambda x: x['_index']):
         _rows = [_datumn['_source'] for _datumn in list(group)]
         output_file = _output_file_for(output_folder, scroll_id, key)
-        write_dicts_to_csv(_rows, output_file, write_headers=write_headers,
-                           fieldnames=fieldnames[key])
+        csv_util.write_dicts_to_csv(
+            _rows, output_file, write_headers=write_headers,
+            fieldnames=fieldnames[key])
 
 
 def _output_file_for(output_folder, scroll_id, index):

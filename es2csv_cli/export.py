@@ -21,8 +21,8 @@ def _output_file_for(output_folder, scroll_id, index):
 
 
 def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
-                            es_timeout, search_args,
-                            fieldnames, output_folder):
+                            es_timeout, search_args, fieldnames,
+                            output_folder, progress_bar=True):
     _es = elasticsearch.Elasticsearch(es_hosts)
     # Init scroll
     if total_worker_count > 1:
@@ -35,28 +35,31 @@ def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
     _data = _page['hits']['hits']
     _sid = _page['_scroll_id']
     _headers_written = False
-    with tqdm(total=_page['hits']['total'], position=scroll_id,
-              desc="slice-%s" % scroll_id, ascii=True) as pbar:
+    pbar = None
+    if progress_bar:
+        pbar = tqdm(total=_page['hits']['total'], position=scroll_id,
+                    desc="slice-%s" % scroll_id, ascii=True)
+    if _data:
+        extract_to_csv(data=_data, output_folder=output_folder,
+                       write_headers=(not _headers_written),
+                       fieldnames=fieldnames, scroll_id=scroll_id)
+        _headers_written = True
+        if pbar:
+            pbar.update(len(_data))
+    while True:
+        _page = _es.scroll(scroll_id=_sid, scroll='{}m'.format(es_timeout))
+        _sid = _page['_scroll_id']
+        _data = _page['hits']['hits']
         if _data:
-            extract_to_csv(data=_data, output_folder=output_folder,
+            extract_to_csv(data=_data,
+                           output_folder=output_folder,
                            write_headers=(not _headers_written),
                            fieldnames=fieldnames, scroll_id=scroll_id)
             _headers_written = True
-            pbar.update(len(_data))
-        # Continue scrolling
-        while True:
-            _page = _es.scroll(scroll_id=_sid, scroll='{}m'.format(es_timeout))
-            _sid = _page['_scroll_id']
-            _data = _page['hits']['hits']
-            if _data:
-                extract_to_csv(data=_data,
-                               output_folder=output_folder,
-                               write_headers=(not _headers_written),
-                               fieldnames=fieldnames, scroll_id=scroll_id)
-                _headers_written = True
+            if pbar:
                 pbar.update(len(_data))
-            else:
-                break
+        else:
+            break
 
 
 def get_fieldnames_for(es_hosts, indices):

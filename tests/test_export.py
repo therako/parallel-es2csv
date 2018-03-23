@@ -1,7 +1,9 @@
 import mock
 import unittest
 
-from es2csv_cli.export import extract_to_csv, scroll_and_extract_data
+from es2csv_cli.export import (
+    extract_to_csv, scroll_and_extract_data, get_fieldnames_for
+)
 
 
 class TestFileUtil(unittest.TestCase):
@@ -82,8 +84,24 @@ class TestFileUtil(unittest.TestCase):
             with mock.patch('es2csv_cli.export.extract_to_csv', _csv_util):
                 scroll_and_extract_data(
                     _scroll_id, _total_worker_count, _es_hosts, _timeout,
-                    _search_args, _fieldnames, _output_folder)
+                    _search_args, _fieldnames, _output_folder,
+                    progress_bar=False)
                 _es_connect_mock.assert_called_with(_es_hosts)
                 _es_mock.search.assert_called_with(
                     body={'slice': {'max': 2, 'id': 0}})
                 _es_mock.scroll.assert_called_with(scroll_id=10, scroll='1m')
+
+        def test_get_fieldnames_for(self):
+            _es_hosts = 'es_hosts'
+            _indices = ['index1']
+            _mappings = {
+                'index1':
+                    {'mappings': {
+                        'index1': {'properties': {'name': 'string'}}}}}
+            _es_mock = mock.MagicMock()
+            _es_mock.indices.return_value = _es_mock
+            _es_mock.get_mapping.return_value = _mappings
+            _es_connect_mock = mock.MagicMock(return_value=_es_mock)
+            with mock.patch('elasticsearch.Elasticsearch', _es_connect_mock):
+                fieldnames = get_fieldnames_for(_es_hosts, _indices)
+                assert fieldnames == {'index1': ['name']}

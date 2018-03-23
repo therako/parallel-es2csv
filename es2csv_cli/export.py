@@ -2,7 +2,7 @@ import os
 import itertools
 
 from tqdm import tqdm
-from elasticsearch import Elasticsearch
+import elasticsearch
 from .utils import csv_util
 
 
@@ -23,7 +23,7 @@ def _output_file_for(output_folder, scroll_id, index):
 def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
                             es_timeout, search_args,
                             fieldnames, output_folder):
-    _es = Elasticsearch(es_hosts)
+    _es = elasticsearch.Elasticsearch(es_hosts)
     # Init scroll
     if total_worker_count > 1:
         # Add ES scroll slicing to handle parallel scrolling of the same data
@@ -60,7 +60,7 @@ def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
 
 
 def get_fieldnames_for(es_hosts, indices):
-    _es = Elasticsearch(es_hosts)
+    _es = elasticsearch.Elasticsearch(es_hosts)
     mappings = _es.indices.get_mapping(
         index=','.join(indices)
     )

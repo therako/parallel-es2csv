@@ -49,6 +49,47 @@ class TestFileUtil(unittest.TestCase):
                 _expected_rows, _expected_output_folder, write_headers=True,
                 fieldnames=_fieldnames['index1'])
 
+    def test_multiple_indices_extracts(self):
+        data = [
+            {
+                "_score": 1.0,
+                "_type": "index1",
+                "_id": "1",
+                "_source": {
+                    "name": "n1",
+                    "value": 2
+                },
+                "_index": "index1"
+            }, {
+                "_score": 1.0,
+                "_type": "index2",
+                "_id": "2",
+                "_source": {
+                    "name": "n2",
+                    "value": 2
+                },
+                "_index": "index2"
+            }
+        ]
+        _fieldnames = {
+            'index1': ['name', 'value'], 'index2': ['name', 'value']}
+        _output_folder = '_output_folder'
+        _csv_util = mock.MagicMock()
+        with mock.patch('es2csv_cli.utils.csv_util.write_dicts_to_csv',
+                        _csv_util):
+            _extract_to_csv(data, write_headers=True, fieldnames=_fieldnames,
+                            output_folder=_output_folder, worker_id=0)
+            _index1_rows = [{'name': 'n1', 'value': 2}]
+            _index2_rows = [{'name': 'n2', 'value': 2}]
+            assert _csv_util.mock_calls == [
+                mock.call(_index1_rows, _output_folder + '/index1_0.csv',
+                          write_headers=True,
+                          fieldnames=_fieldnames['index1']),
+                mock.call(_index2_rows, _output_folder + '/index2_0.csv',
+                          write_headers=True,
+                          fieldnames=_fieldnames['index2'])
+            ]
+
     def test_scroll_and_extract_data(self):
         _scroll_id = 0
         _total_worker_count = 2

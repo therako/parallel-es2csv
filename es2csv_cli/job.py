@@ -1,21 +1,21 @@
-from .utils.async_worker import AsyncWorker
-from .export import scroll_and_extract_data, get_fieldnames_for
+from .utils import async_worker
+from . import export
 
 
 class Es2CsvJob:
     def __init__(self, opts):
         self.opts = opts
-
-    def export(self):
         self._init_async_worker()
+
+    def execute(self):
         self._slice_and_scroll(self._get_fieldnames())
         self._wait_till_complete()
 
     def _init_async_worker(self):
-        self.a = AsyncWorker(self.opts.no_of_workers)
+        self.a = async_worker.AsyncWorker(self.opts.no_of_workers)
 
     def _get_fieldnames(self):
-        return get_fieldnames_for(self.opts.url, self.opts.indices)
+        return export.get_fieldnames_for(self.opts.url, self.opts.indices)
 
     def _slice_and_scroll(self, fieldnames):
         for i in range(self.opts.no_of_workers):
@@ -32,7 +32,7 @@ class Es2CsvJob:
             if '_all' not in self.opts.fields:
                 search_args['_source_include'] = ','.join(self.opts.fields)
             self.a.send_data_to_worker(
-                scroll_and_extract_data,
+                export.scroll_and_extract_data,
                 scroll_id=i,
                 total_worker_count=self.opts.no_of_workers,
                 es_hosts=self.opts.url,

@@ -9,7 +9,7 @@ from es2csv_cli.export import (
 )
 
 
-class TestFileUtil(unittest.TestCase):
+class TestExport(unittest.TestCase):
     def setUp(self):
         self.monkeypatch = MonkeyPatch()
 

@@ -1,13 +1,20 @@
 import mock
+import pytest
 import unittest
 
+from elasticsearch import Elasticsearch
 from es2csv_cli.export import (
     extract_to_csv, scroll_and_extract_data, get_fieldnames_for
 )
 
 
-class TestFileUtil(unittest.TestCase):
+@pytest.fixture
+def es_mocks():
+    _es = mock.MagicMock(spec=Elasticsearch)
+    return _es
 
+
+class TestFileUtil(unittest.TestCase):
     def test_extract_to_csv(self):
         data = [
             {
@@ -91,17 +98,16 @@ class TestFileUtil(unittest.TestCase):
                     body={'slice': {'max': 2, 'id': 0}})
                 _es_mock.scroll.assert_called_with(scroll_id=10, scroll='1m')
 
-        def test_get_fieldnames_for(self):
-            _es_hosts = 'es_hosts'
-            _indices = ['index1']
-            _mappings = {
-                'index1':
-                    {'mappings': {
-                        'index1': {'properties': {'name': 'string'}}}}}
-            _es_mock = mock.MagicMock()
-            _es_mock.indices.return_value = _es_mock
-            _es_mock.get_mapping.return_value = _mappings
-            _es_connect_mock = mock.MagicMock(return_value=_es_mock)
-            with mock.patch('elasticsearch.Elasticsearch', _es_connect_mock):
-                fieldnames = get_fieldnames_for(_es_hosts, _indices)
-                assert fieldnames == {'index1': ['name']}
+    def test_get_fieldnames_for(self):
+        _es_hosts = 'es_hosts'
+        _indices = ['index1']
+        _mappings = {
+            'index1':
+                {'mappings': {
+                    'index1': {'properties': {'name': 'string'}}}}}
+        _es_mock = mock.MagicMock()
+        _es_mock.indices.get_mapping.return_value = _mappings
+        _es_connect_mock = mock.MagicMock(return_value=_es_mock)
+        with mock.patch('elasticsearch.Elasticsearch', _es_connect_mock):
+            fieldnames = get_fieldnames_for(_es_hosts, _indices)
+            self.assertEquals(fieldnames['index1'], ['name'])

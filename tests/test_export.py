@@ -1,17 +1,9 @@
 import mock
-import pytest
 import unittest
 
-from elasticsearch import Elasticsearch
 from es2csv_cli.export import (
     extract_to_csv, scroll_and_extract_data, get_fieldnames_for
 )
-
-
-@pytest.fixture
-def es_mocks():
-    _es = mock.MagicMock(spec=Elasticsearch)
-    return _es
 
 
 class TestFileUtil(unittest.TestCase):
@@ -110,4 +102,4 @@ class TestFileUtil(unittest.TestCase):
         _es_connect_mock = mock.MagicMock(return_value=_es_mock)
         with mock.patch('elasticsearch.Elasticsearch', _es_connect_mock):
             fieldnames = get_fieldnames_for(_es_hosts, _indices)
-            self.assertEquals(fieldnames['index1'], ['name'])
+            assert fieldnames['index1'] == ['name']

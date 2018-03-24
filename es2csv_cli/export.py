@@ -6,8 +6,8 @@ import elasticsearch
 from .utils import csv_util
 
 
-def extract_to_csv(data, write_headers, fieldnames, output_folder,
-                   scroll_id):
+def _extract_to_csv(data, write_headers, fieldnames, output_folder,
+                    scroll_id):
     for key, group in itertools.groupby(data, key=lambda x: x['_index']):
         _rows = [_datumn['_source'] for _datumn in list(group)]
         output_file = _output_file_for(output_folder, scroll_id, key)
@@ -20,10 +20,14 @@ def _output_file_for(output_folder, scroll_id, index):
     return os.path.join(output_folder, '{}_{}.csv'.format(index, scroll_id))
 
 
+def _get_es_client(es_hosts):
+    return elasticsearch.Elasticsearch(es_hosts)
+
+
 def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
                             es_timeout, search_args, fieldnames,
                             output_folder, progress_bar=True):
-    _es = elasticsearch.Elasticsearch(es_hosts)
+    _es = _get_es_client(es_hosts)
     # Init scroll
     if total_worker_count > 1:
         # Add ES scroll slicing to handle parallel scrolling of the same data
@@ -40,9 +44,9 @@ def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
         pbar = tqdm(total=_page['hits']['total'], position=scroll_id,
                     desc="slice-%s" % scroll_id, ascii=True)
     if _data:
-        extract_to_csv(data=_data, output_folder=output_folder,
-                       write_headers=(not _headers_written),
-                       fieldnames=fieldnames, scroll_id=scroll_id)
+        _extract_to_csv(data=_data, output_folder=output_folder,
+                        write_headers=(not _headers_written),
+                        fieldnames=fieldnames, scroll_id=scroll_id)
         _headers_written = True
         if pbar:
             pbar.update(len(_data))
@@ -51,10 +55,10 @@ def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
         _sid = _page['_scroll_id']
         _data = _page['hits']['hits']
         if _data:
-            extract_to_csv(data=_data,
-                           output_folder=output_folder,
-                           write_headers=(not _headers_written),
-                           fieldnames=fieldnames, scroll_id=scroll_id)
+            _extract_to_csv(data=_data,
+                            output_folder=output_folder,
+                            write_headers=(not _headers_written),
+                            fieldnames=fieldnames, scroll_id=scroll_id)
             _headers_written = True
             if pbar:
                 pbar.update(len(_data))
@@ -63,7 +67,7 @@ def scroll_and_extract_data(scroll_id, total_worker_count, es_hosts,
 
 
 def get_fieldnames_for(es_hosts, indices):
-    _es = elasticsearch.Elasticsearch(es_hosts)
+    _es = _get_es_client(es_hosts)
     mappings = _es.indices.get_mapping(
         index=','.join(indices)
     )

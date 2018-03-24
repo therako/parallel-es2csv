@@ -58,3 +58,6 @@ upload-package: test lint clean
 	pip install twine wheel
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
+	tag_name=v$(cat ./es2csv_cli/__init__.py | grep __version__ | awk '{print $3}' | sed "s/'//g")
+	git tag ${tag_name}
+	git push origin ${tag_name}

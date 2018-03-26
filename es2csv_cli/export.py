@@ -66,7 +66,7 @@ def scroll_and_extract_data(worker_id, total_worker_count, es_hosts,
         if pbar:
             pbar.update(len(_data))
     while True:
-        _page = _es.scroll(worker_id=_sid, scroll='{}m'.format(es_timeout))
+        _page = _es.scroll(scroll_id=_sid, scroll='{}m'.format(es_timeout))
         _data, _sid = _get_data_from_es_page(_page)
         if _data:
             _extract_to_csv(data=_data,

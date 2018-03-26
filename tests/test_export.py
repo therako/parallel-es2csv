@@ -135,7 +135,7 @@ class TestExport(unittest.TestCase):
                 _es_connect_mock.assert_called_with(_es_hosts)
                 _es_mock.search.assert_called_with(
                     body={'slice': {'max': 2, 'id': 0}})
-                _es_mock.scroll.assert_called_with(worker_id=10, scroll='1m')
+                _es_mock.scroll.assert_called_with(scroll_id=10, scroll='1m')
 
     def test_get_fieldnames_for(self):
         _es_hosts = 'es_hosts'

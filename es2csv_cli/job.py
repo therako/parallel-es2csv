@@ -33,7 +33,7 @@ class Es2CsvJob:
                 search_args['_source_include'] = ','.join(self.opts.fields)
             self.a.send_data_to_worker(
                 export.scroll_and_extract_data,
-                scroll_id=i,
+                worker_id=i,
                 total_worker_count=self.opts.no_of_workers,
                 es_hosts=self.opts.url,
                 es_timeout=self.opts.timeout,

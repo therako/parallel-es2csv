@@ -111,13 +111,13 @@ def test_slice_and_scroll(simple_options):
             assert worker_mock.send_data_to_worker.mock_calls[0] == call(
                 scroll_mock,
                 search_args=_search_args,
-                scroll_id=0, total_worker_count=2, es_timeout=10,
+                worker_id=0, total_worker_count=2, es_timeout=10,
                 output_folder='output_folder', es_hosts='es_url',
                 fieldnames='some_fieldnames')
             assert worker_mock.send_data_to_worker.mock_calls[1] == call(
                 scroll_mock,
                 search_args=_search_args,
-                scroll_id=1, total_worker_count=2, es_timeout=10,
+                worker_id=1, total_worker_count=2, es_timeout=10,
                 output_folder='output_folder', es_hosts='es_url',
                 fieldnames='some_fieldnames')
 
@@ -139,7 +139,7 @@ def test_slice_and_scroll_with_single_worker(single_worker_options):
             assert worker_mock.send_data_to_worker.mock_calls[0] == call(
                 scroll_mock,
                 search_args=_search_args,
-                scroll_id=0, total_worker_count=1, es_timeout=10,
+                worker_id=0, total_worker_count=1, es_timeout=10,
                 output_folder='output_folder', es_hosts='es_url',
                 fieldnames='some_fieldnames')
 

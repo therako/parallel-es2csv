@@ -1,5 +1,51 @@
+import argparse
+from . import __version__
 from .utils import async_worker
 from . import export
+
+
+parser = argparse.ArgumentParser(
+    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+parser.add_argument(
+    '-i', '--indices', dest='indices', type=str, required=True, nargs='+',
+    help='ES indices to export.')
+parser.add_argument(
+    '-u', '--url', dest='url', default='http://localhost:9200', type=str,
+    help='Elasticsearch host URL. Default is %(default)s.')
+parser.add_argument(
+    '-a', '--auth', dest='auth', type=str, required=False,
+    help='Elasticsearch basic authentication in the form of username:pwd.')
+parser.add_argument(
+    '-D', '--doc_types', dest='doc_types', type=str, nargs='+',
+    metavar='DOC_TYPE', help='Document type(s).')
+parser.add_argument(
+    '-o', '--output_folder', dest='output_folder', type=str, default='.',
+    help='Output folder path.')
+parser.add_argument(
+    '-f', '--fields', dest='fields', default=['_all'], type=str, nargs='+',
+    help='List of selected fields in output. Default is %(default)s.')
+parser.add_argument(
+    '-m', '--max', dest='max_results', default=0, type=int, metavar='INTEGER',
+    help='Maximum number of results to return. Default is %(default)s.')
+parser.add_argument(
+    '-s', '--scroll_size', dest='scroll_size', default=100, type=int,
+    metavar='INTEGER',
+    help='Scroll size for each batch of results. Default is %(default)s.')
+parser.add_argument(
+    '-t', '--timeout', dest='timeout', default=60, type=int,
+    metavar='INTEGER', help='Timeout in seconds. Default is %(default)s.')
+parser.add_argument(
+    '-e', '--meta_fields', dest='meta_fields', action='store_true',
+    help='Add meta-fields in output.')
+parser.add_argument(
+    '-n', '--no_of_workers', dest='no_of_workers', type=int, default=1,
+    help='No. or parallel scroll from Elasticsearch, using Multiprocess')
+parser.add_argument(
+    '-v', '--version', action='version',
+    version='%(prog)s ' + __version__,
+    help='Show version and exit.')
+parser.add_argument(
+    '--debug', dest='debug_mode', action='store_true', help='Debug mode on.')
 
 
 class Es2CsvJob:

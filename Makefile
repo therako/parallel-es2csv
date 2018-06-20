@@ -48,9 +48,10 @@ lint-rst:
 	rst-lint README.rst
 
 lint-pep8:
+	pip install flake8
 	flake8 es2csv_cli tests
 
-lint: lint-rst lint-pep8
+lint: lint-pep8
 
 pre-commit: coverage lint
 
